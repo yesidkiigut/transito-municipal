@@ -24,7 +24,8 @@ import {
   Settings,
   Palette,
   QrCode,
-  Database
+  Database,
+  DollarSign
 } from 'lucide-react';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -83,6 +84,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       { label: 'Motor de Trámites', path: '/tramites', icon: FileCheck },
       { label: 'Agenda y Citas', path: '/agenda', icon: Calendar },
       { label: 'Reportes Globales', path: '/reportes', icon: BarChart3 },
+      { label: 'Tesorería & Auditoría', path: '/tesoreria', icon: DollarSign },
       { label: 'Conciliación HASSQL', path: '/hassql-sync', icon: Database },
       { label: 'Identidad Visual & Logos', path: '/branding', icon: Palette },
     ];
