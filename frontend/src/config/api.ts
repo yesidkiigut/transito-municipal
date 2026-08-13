@@ -1,8 +1,19 @@
 import axios from 'axios';
 
 // URL del backend configurada en variables de entorno o producción
-const rawApiUrl = (import.meta as any).env?.VITE_API_URL || '';
-export const API_BASE_URL = rawApiUrl.replace(/\/$/, '');
+let envUrl = (import.meta as any).env?.VITE_API_URL || '';
+
+// Limpiar si el usuario incluyó accidentalmente el nombre de la variable
+if (envUrl.includes('=')) {
+  envUrl = envUrl.split('=').pop() || '';
+}
+
+// Si estamos en producción en Railway y no se definió o es inválida, usar la URL del backend oficial
+if (!envUrl && typeof window !== 'undefined' && window.location.hostname.includes('railway.app')) {
+  envUrl = 'https://transito-municipal-production.up.railway.app';
+}
+
+export const API_BASE_URL = envUrl.replace(/\/$/, '');
 
 // Configurar axios por defecto
 if (API_BASE_URL) {
