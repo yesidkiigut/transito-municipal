@@ -1,0 +1,399 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Rol {
+  ADMIN
+  FUNCIONARIO
+  CIUDADANO
+}
+
+enum TipoDocumento {
+  CC
+  CE
+  PASAPORTE
+  NIT
+}
+
+enum EstadoCiudadano {
+  ACTIVO
+  INACTIVO
+  FALLECIDO
+}
+
+enum TipoVehiculo {
+  AUTOMOVIL
+  MOTOCICLETA
+  CAMION
+  BUS
+  BUSETA
+  MICROBUS
+  TRACTOCAMION
+}
+
+enum ClaseServicio {
+  PARTICULAR
+  PUBLICO
+  DIPLOMATICO
+  OFICIAL
+}
+
+enum EstadoVehiculo {
+  ACTIVO
+  INACTIVO
+  ROBADO
+  DESVINCULADO
+}
+
+enum CategoriaLicencia {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+  C3
+}
+
+enum EstadoLicencia {
+  VIGENTE
+  VENCIDA
+  SUSPENDIDA
+  CANCELADA
+}
+
+enum EstadoComparendo {
+  PENDIENTE
+  PAGADO_EXTERNO
+  NOTIFICADO
+  FALLADO
+  APELADO
+  ARCHIVADO
+}
+
+enum EstadoTramite {
+  RADICADO
+  EN_REVISION
+  EN_ESPERA_DOC
+  APROBADO
+  RECHAZADO
+  FINALIZADO
+  CANCELADO
+}
+
+enum EstadoCita {
+  DISPONIBLE
+  RESERVADA
+  CONFIRMADA
+  CANCELADA
+  ATENDIDA
+  NO_SHOW
+}
+
+model Usuario {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  nombre    String
+  rol       Rol      @default(CIUDADANO)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ciudadano Ciudadano?
+}
+
+model Ciudadano {
+  id              String          @id @default(uuid())
+  usuarioId       String?         @unique
+  usuario         Usuario?        @relation(fields: [usuarioId], references: [id])
+  tipoDocumento   TipoDocumento
+  numeroDocumento String          @unique
+  nombres         String
+  apellidos       String
+  fechaNacimiento DateTime
+  correo          String
+  telefono        String
+  via             String
+  numero1         String
+  numero2         String
+  barrio          String
+  ciudad          String
+  departamento    String
+  estado          EstadoCiudadano @default(ACTIVO)
+  fechaRegistro   DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  propietarios VehiculoPropietario[]
+  licencias    Licencia[]
+  comparendos  Comparendo[]
+  tramites     Tramite[]
+  citas        Cita[]
+  preinscripciones Preinscripcion[]
+}
+
+model Vehiculo {
+  id            String         @id @default(uuid())
+  placa         String         @unique
+  marca         String
+  linea         String
+  modelo        Int
+  cilindraje    Int
+  color         String
+  tipoVehiculo  TipoVehiculo
+  claseServicio ClaseServicio
+  numeroMotor   String
+  numeroChasis  String
+  fechaMatricula DateTime
+  estado        EstadoVehiculo @default(ACTIVO)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  propietarios VehiculoPropietario[]
+  tramites     Tramite[]
+  comparendos  Comparendo[]
+  impuestos    ImpuestoVehicular[]
+  rodamientos   RodamientoMunicipal[]
+}
+
+model VehiculoPropietario {
+  id          String    @id @default(uuid())
+  vehiculoId  String
+  ciudadanoId String
+  fechaInicio DateTime  @default(now())
+  fechaFin    DateTime?
+  esActual    Boolean   @default(true)
+
+  vehiculo  Vehiculo  @relation(fields: [vehiculoId], references: [id])
+  ciudadano Ciudadano @relation(fields: [ciudadanoId], references: [id])
+
+  @@unique([vehiculoId, ciudadanoId, fechaInicio])
+}
+
+model Licencia {
+  id                 String            @id @default(uuid())
+  numeroLicencia     String            @unique
+  ciudadanoId        String
+  categoria          CategoriaLicencia
+  fechaExpedicion    DateTime
+  fechaVencimiento   DateTime
+  estado             EstadoLicencia    @default(VIGENTE)
+  restricciones      String[]
+  organismoExpedidor String            @default("Tránsito Municipal")
+  puntosAcumulados   Int               @default(12)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  ciudadano Ciudadano @relation(fields: [ciudadanoId], references: [id])
+  tramites  Tramite[]
+}
+
+model TipoInfraccion {
+  id             String   @id @default(uuid())
+  codigo         String   @unique
+  descripcion    String
+  grado          Int
+  valorBase      Float
+  puntosDescuento Int
+  articuloCNSV   String
+  createdAt      DateTime @default(now())
+
+  comparendos Comparendo[]
+}
+
+model Comparendo {
+  id               String           @id @default(uuid())
+  numeroComparendo String           @unique
+  placaVehiculo    String
+  ciudadanoId      String
+  tipoInfraccionId String
+  fechaInfraccion  DateTime
+  lugarInfraccion  String
+  agenteTransitoId String
+  observaciones    String?
+  evidencias       String[]
+  estado           EstadoComparendo @default(PENDIENTE)
+  valorMulta       Float
+  gradoInfraccion  Int
+  puntosDescuento  Int
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  vehiculo       Vehiculo       @relation(fields: [placaVehiculo], references: [placa])
+  ciudadano      Ciudadano      @relation(fields: [ciudadanoId], references: [id])
+  tipoInfraccion TipoInfraccion @relation(fields: [tipoInfraccionId], references: [id])
+  resoluciones   Resolucion[]
+}
+
+model Resolucion {
+  id               String     @id @default(uuid())
+  comparendoId     String
+  numeroResolucion String     @unique
+  fecha            DateTime   @default(now())
+  tipo             String
+  motivo           String
+  funcionarioId    String
+  createdAt        DateTime   @default(now())
+
+  comparendo Comparendo @relation(fields: [comparendoId], references: [id])
+}
+
+model TipoTramite {
+  id                     String   @id @default(uuid())
+  codigo                 String   @unique
+  nombre                 String
+  descripcion            String
+  requisitos             String[]
+  tiempoMaximoResolucion Int      @default(5)
+  areaResponsable        String   @default("Operaciones")
+  createdAt              DateTime @default(now())
+
+  tramites Tramite[]
+  citas    Cita[]
+}
+
+model Tramite {
+  id                    String        @id @default(uuid())
+  codigoTramite         String        @unique
+  tipoTramiteId         String
+  ciudadanoSolicitanteId String
+  vehiculoId            String?
+  licenciaId            String?
+  estado                EstadoTramite @default(RADICADO)
+  observaciones         String?
+  fechaRadicado         DateTime      @default(now())
+  fechaResolucion       DateTime?
+  funcionarioAsignadoId String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  tipoTramite TipoTramite        @relation(fields: [tipoTramiteId], references: [id])
+  ciudadano   Ciudadano          @relation(fields: [ciudadanoSolicitanteId], references: [id])
+  vehiculo    Vehiculo?          @relation(fields: [vehiculoId], references: [id])
+  licencia    Licencia?          @relation(fields: [licenciaId], references: [id])
+  historial   HistorialTramite[]
+}
+
+model HistorialTramite {
+  id            String        @id @default(uuid())
+  tramiteId     String
+  paso          String
+  estadoAnterior EstadoTramite
+  estadoNuevo    EstadoTramite
+  funcionarioId String
+  observacion   String?
+  fecha         DateTime      @default(now())
+
+  tramite Tramite @relation(fields: [tramiteId], references: [id])
+}
+
+model PuestoAtencion {
+  id     String  @id @default(uuid())
+  nombre String
+  modulo String
+  activo Boolean @default(true)
+
+  citas Cita[]
+}
+
+model Cita {
+  id               String     @id @default(uuid())
+  codigoCita       String     @unique
+  ciudadanoId      String
+  tipoTramiteId    String
+  puestoAtencionId String
+  fechaCita        DateTime
+  horaInicio       String
+  horaFin          String
+  estado           EstadoCita @default(DISPONIBLE)
+  createdAt        DateTime   @default(now())
+
+  ciudadano      Ciudadano      @relation(fields: [ciudadanoId], references: [id])
+  tipoTramite    TipoTramite    @relation(fields: [tipoTramiteId], references: [id])
+  puestoAtencion PuestoAtencion @relation(fields: [puestoAtencionId], references: [id])
+}
+
+enum EstadoImpuesto {
+  PENDIENTE
+  PAGADO
+  EN_MORA
+  ANULADO
+}
+
+enum EstadoPreinscripcion {
+  PENDIENTE
+  REVISADO
+  RECHAZADO
+  CONVERTIDO_EN_TRAMITE
+}
+
+enum ProveedorPasarela {
+  PSE
+  WOMPI
+  MERCADOPAGO
+}
+
+model ImpuestoVehicular {
+  id                  String         @id @default(uuid())
+  placaVehiculo       String
+  vigenciaFiscal      Int
+  avaluoComercial     Float
+  valorBaseImpuesto   Float
+  sancionMora         Float          @default(0)
+  interesesMora       Float          @default(0)
+  descuentoProntoPago Float          @default(0)
+  valorTotalPagar     Float
+  estado              EstadoImpuesto @default(PENDIENTE)
+  fechaVencimiento    DateTime
+  fechaPago           DateTime?
+  reciboPagoRef       String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  vehiculo Vehiculo @relation(fields: [placaVehiculo], references: [placa])
+}
+
+model ConfiguracionPasarela {
+  id            String            @id @default(uuid())
+  proveedor     ProveedorPasarela @default(PSE)
+  merchantId    String
+  publicKey     String
+  secretKey     String
+  sandboxMode   Boolean           @default(true)
+  activo        Boolean           @default(true)
+  webhookSecret String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model Preinscripcion {
+  id                  String               @id @default(uuid())
+  codigoPreinscripcion String              @unique
+  ciudadanoId         String
+  tipoTramiteCodigo   String
+  placaVehiculo       String?
+  datosFormulario     String
+  estado              EstadoPreinscripcion @default(PENDIENTE)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  ciudadano Ciudadano @relation(fields: [ciudadanoId], references: [id])
+}
+
+model RodamientoMunicipal {
+  id               String   @id @default(uuid())
+  placaVehiculo    String
+  vigenciaAnio     Int
+  valorTasa        Float
+  fechaVencimiento DateTime
+  estaPazYSalvo    Boolean  @default(true)
+  certificadoRef   String?
+  createdAt        DateTime @default(now())
+
+  vehiculo Vehiculo @relation(fields: [placaVehiculo], references: [placa])
+}
+
