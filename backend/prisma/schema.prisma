@@ -501,3 +501,55 @@ model DetallePago {
   createdAt          DateTime         @default(now())
 }
 
+enum TipoConexionHassql {
+  WEB_SERVICE_REST
+  SOAP_XML
+  SQL_SERVER_DIRECT
+  ARCHIVO_ASOBANCARIA_2001
+}
+
+enum EstadoLoteSync {
+  EXITOSO
+  PARCIAL
+  FALLIDO
+  EN_PROCESO
+}
+
+model ConfiguracionHassql {
+  id                    String              @id @default(uuid())
+  servidorHost          String              @default("https://api.hassql.com.co")
+  puerto                Int                 @default(1433)
+  baseDatos             String              @default("HASSQL_TRANSITO_MUNICIPAL")
+  usuario               String              @default("usr_transito_sync")
+  password              String              @default("Hassql_2026_Secure!")
+  tipoConexion          TipoConexionHassql  @default(WEB_SERVICE_REST)
+  tokenApi              String?             @default("hsql_tok_live_987654321_transito")
+  endpointRecaudo       String              @default("https://api.hassql.com.co/v1/recaudo/transito")
+  horaCierreFiscal      String              @default("23:59")
+  activo                Boolean             @default(true)
+  autoSincronizar       Boolean             @default(true)
+  formatoAsobancaria    Boolean             @default(true)
+  codigoEntidadHassql   String              @default("MUN-TRANSITO-001")
+  cuentaBancariaRecaudo String              @default("CTA-CTE-123456789-BANCOLOMBIA")
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+}
+
+model LoteSincronizacionHassql {
+  id                    String              @id @default(uuid())
+  codigoLote            String              @unique
+  fechaInicio           DateTime
+  fechaFin              DateTime
+  totalTransacciones    Int
+  totalRecaudado        Float
+  totalPSE              Float               @default(0)
+  totalBreB             Float               @default(0)
+  estado                EstadoLoteSync      @default(EXITOSO)
+  comprobanteHassqlId   String?
+  respuestaServidor     String?
+  archivoPlanoGenerado  String?
+  detallesContables     String?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+}
+

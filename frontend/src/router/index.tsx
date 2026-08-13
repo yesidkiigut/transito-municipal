@@ -16,6 +16,7 @@ import { PreinscripcionPage } from '@/features/preinscripcion/PreinscripcionPage
 import { RodamientoPage } from '@/features/rodamiento/RodamientoPage';
 import { BrandingPage } from '@/features/branding/BrandingPage';
 import { PortalPagosPage } from '@/features/pagos/PortalPagosPage';
+import { HassqlSyncPage } from '@/features/hassql/HassqlSyncPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token } = useAuthStore();
@@ -143,6 +144,16 @@ export const AppRouter: React.FC = () => {
         element={
           <ProtectedRoute>
             <PortalPagosPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/hassql-sync"
+        element={
+          <ProtectedRoute>
+            <AdminOnlyRoute>
+              <HassqlSyncPage />
+            </AdminOnlyRoute>
           </ProtectedRoute>
         }
       />
