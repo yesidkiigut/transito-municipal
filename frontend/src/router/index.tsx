@@ -14,6 +14,8 @@ import { ReportesPage } from '@/features/reportes/ReportesPage';
 import { ImpuestosPage } from '@/features/impuestos/ImpuestosPage';
 import { PreinscripcionPage } from '@/features/preinscripcion/PreinscripcionPage';
 import { RodamientoPage } from '@/features/rodamiento/RodamientoPage';
+import { BrandingPage } from '@/features/branding/BrandingPage';
+import { PortalPagosPage } from '@/features/pagos/PortalPagosPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token } = useAuthStore();
@@ -123,6 +125,24 @@ export const AppRouter: React.FC = () => {
             <AdminOnlyRoute>
               <ReportesPage />
             </AdminOnlyRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/branding"
+        element={
+          <ProtectedRoute>
+            <AdminOnlyRoute>
+              <BrandingPage />
+            </AdminOnlyRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/pagos"
+        element={
+          <ProtectedRoute>
+            <PortalPagosPage />
           </ProtectedRoute>
         }
       />

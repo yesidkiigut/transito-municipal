@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import { Building2, Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -9,6 +10,7 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('admin123');
   const [loading, setLoading] = useState(false);
   const login = useAuthStore((state) => state.login);
+  const { config } = useThemeStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,22 +41,48 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden font-sans">
+    <div
+      style={{ backgroundColor: config.colorFondo || '#020617' }}
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden font-sans transition-colors duration-300"
+    >
       {/* Background Decorative Glows */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div
+        style={{ backgroundColor: config.colorPrimario || '#06b6d4' }}
+        className="absolute top-1/4 left-1/4 w-96 h-96 opacity-10 rounded-full blur-3xl pointer-events-none"
+      ></div>
+      <div
+        style={{ backgroundColor: config.colorSecundario || '#4f46e5' }}
+        className="absolute bottom-1/4 right-1/4 w-96 h-96 opacity-10 rounded-full blur-3xl pointer-events-none"
+      ></div>
 
-      <div className="w-full max-w-md bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-xl relative z-10">
+      <div
+        style={{ backgroundColor: config.colorSidebar ? `${config.colorSidebar}f2` : '#0f172ae6' }}
+        className="w-full max-w-md border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-xl relative z-10"
+      >
         <div className="text-center mb-8">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/25 mb-4">
-            <Building2 className="w-8 h-8 text-white" />
-          </div>
+          {config.logoUrl ? (
+            <img src={config.logoUrl} alt="Logo" className="w-16 h-16 object-contain mx-auto mb-4 drop-shadow" />
+          ) : (
+            <div
+              style={{
+                background: `linear-gradient(to top right, ${config.colorPrimario || '#06b6d4'}, ${config.colorSecundario || '#2563eb'})`,
+              }}
+              className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/25 mb-4"
+            >
+              <Building2 className="w-9 h-9 text-white" />
+            </div>
+          )}
           <h1 className="text-2xl font-extrabold text-white tracking-tight">
-            Tránsito Municipal
+            {config.nombreMunicipio || 'Tránsito Municipal'}
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Plataforma Institucional de Gestión Hexagonal
+          <p className="text-xs text-slate-400 mt-1">
+            {config.nombreSecretaria || 'Plataforma Institucional de Gestión Hexagonal'}
           </p>
+          {config.lema && (
+            <p className="text-[11px] text-cyan-400/90 italic mt-1 font-medium">
+              "{config.lema}"
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -96,7 +124,10 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-[0.98] transition disabled:opacity-50"
+              style={{
+                background: `linear-gradient(to right, ${config.colorPrimario || '#06b6d4'}, ${config.colorSecundario || '#2563eb'}, ${config.colorAcento || '#4f46e5'})`,
+              }}
+              className="w-full py-3.5 px-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-[0.98] transition hover:opacity-90 disabled:opacity-50"
             >
               {loading ? 'Autenticando...' : 'Iniciar Sesión'}
               <ArrowRight className="w-5 h-5" />

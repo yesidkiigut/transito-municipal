@@ -397,3 +397,107 @@ model RodamientoMunicipal {
   vehiculo Vehiculo @relation(fields: [placaVehiculo], references: [placa])
 }
 
+model ConfiguracionVisual {
+  id                  String   @id @default(uuid())
+  nombreMunicipio     String   @default("Municipio de Ejemplo")
+  nombreSecretaria    String   @default("Secretaría de Tránsito y Transporte")
+  lema                String   @default("Movilidad Segura, Eficiente e Innovadora")
+  nitAlcaldia         String   @default("899.999.001-3")
+  logoUrl             String?
+  logoSecundarioUrl   String?
+  escudoUrl           String?
+  faviconUrl          String?
+  bannerLoginUrl      String?
+  colorPrimario       String   @default("#06b6d4")
+  colorSecundario     String   @default("#2563eb")
+  colorAcento         String   @default("#4f46e5")
+  colorFondo          String   @default("#020617")
+  colorSidebar        String   @default("#0f172a")
+  colorNavbar         String   @default("#0f172a")
+  colorTexto          String   @default("#f8fafc")
+  modoOscuro          Boolean  @default(true)
+  estiloBorde         String   @default("rounded-2xl")
+  fuentePrincipal     String   @default("Outfit")
+  presetTema          String   @default("CYAN_MODERN")
+  telefonoContacto    String   @default("+57 (601) 555-0199")
+  correoContacto      String   @default("contacto@transitomunicipal.gov.co")
+  direccionSede       String   @default("Palacio Municipal - Cra 5 # 10-20")
+  textoPiePagina      String   @default("© 2026 Alcaldía Municipal - Secretaría de Tránsito. Todos los derechos reservados.")
+  portalWebUrl        String   @default("https://transitomunicipal.gov.co")
+  redesSociales       String?
+  activo              Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+enum CanalPago {
+  PSE
+  BRE_B
+  TARJETA
+  VENTANILLA
+}
+
+enum EstadoPago {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
+  EXPIRADO
+  REVERSADO
+}
+
+enum TipoConceptoPago {
+  COMPARENDO
+  IMPUESTO_VEHICULAR
+  TRAMITE_LICENCIA
+  TRAMITE_MATRICULA
+  RODAMIENTO_MUNICIPAL
+}
+
+model TransaccionPago {
+  id                    String        @id @default(uuid())
+  referenciaPago        String        @unique
+  ciudadanoId           String
+  montoTotal            Float
+  canalPago             CanalPago     @default(PSE)
+  proveedorPasarela     String        @default("PSE_ACH")
+  estadoPago            EstadoPago    @default(PENDIENTE)
+  cus                   String?
+  codigoTrazabilidad    String?
+  ipOrigen              String?
+  bancoPSE              String?
+  tipoPersonaPSE        String?       @default("NATURAL")
+  qrBreB                String?
+  llaveBreB             String?
+  fechaTransaccion      DateTime      @default(now())
+  fechaAprobacion       DateTime?
+  fechaExpiracion       DateTime?
+
+  // Datos para conciliación y sincronización con HASSQL (Fase 2)
+  sincronizadoHassql    Boolean       @default(false)
+  fechaSincronizacion   DateTime?
+  referenciaAsientoHassql String?
+  intentosSync          Int           @default(0)
+  logErrorSync          String?
+  reciboOficialNumero   String?
+
+  detalles              DetallePago[]
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+}
+
+model DetallePago {
+  id                 String           @id @default(uuid())
+  transaccionId      String
+  tipoConcepto       TipoConceptoPago
+  referenciaConcepto String
+  descripcion        String
+  codigoContable     String           @default("2.1.2.02.02")
+  valorBase          Float
+  descuento          Float            @default(0)
+  interesesMora      Float            @default(0)
+  valorFinal         Float
+
+  transaccion        TransaccionPago  @relation(fields: [transaccionId], references: [id], onDelete: Cascade)
+  createdAt          DateTime         @default(now())
+}
+
