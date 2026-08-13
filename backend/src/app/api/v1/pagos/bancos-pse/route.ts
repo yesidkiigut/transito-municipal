@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-export const BANCOS_COLOMBIA_PSE = [
+const BANCOS_COLOMBIA_PSE = [
   { codigo: '1007', nombre: 'BANCOLOMBIA', tipo: 'Bancos' },
   { codigo: '1051', nombre: 'DAVIVIENDA', tipo: 'Bancos' },
   { codigo: '1001', nombre: 'BANCO DE BOGOTA', tipo: 'Bancos' },

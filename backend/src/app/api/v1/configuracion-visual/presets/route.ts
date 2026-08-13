@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-export const TEMAS_PRESET = [
+const TEMAS_PRESET = [
   {
     id: 'CYAN_MODERN',
     nombre: '⚡ Cyan Cyber Modern (Predeterminado)',

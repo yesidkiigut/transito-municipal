@@ -3,7 +3,6 @@ import { RegistrarCiudadanoDTO, RegistrarCiudadanoSchema } from '../../dto/ciuda
 import { Ciudadano } from '../../../domain/entities/Ciudadano';
 import { Direccion } from '../../../domain/value-objects/Direccion';
 import { DocumentoYaRegistradoException } from '../../../domain/exceptions/CiudadanoExceptions';
-import { v4 as uuidv4 } from 'uuid';
 
 export class RegistrarCiudadanoUseCase {
   constructor(private readonly ciudadanoRepository: ICiudadanoRepository) {}
