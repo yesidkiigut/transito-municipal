@@ -5,20 +5,25 @@ import { prisma } from '../client';
 
 export class PrismaConfiguracionVisualRepository implements IConfiguracionVisualRepository {
   public async obtenerConfiguracion(): Promise<ConfiguracionVisual> {
-    const record = await prisma.configuracionVisual.findFirst({
-      where: { activo: true },
-      orderBy: { updatedAt: 'desc' },
-    });
-
-    if (!record) {
-      const defecto = ConfiguracionVisual.crearDefecto();
-      const creado = await prisma.configuracionVisual.create({
-        data: ConfiguracionVisualMapper.toPersistence(defecto),
+    try {
+      const record = await prisma.configuracionVisual.findFirst({
+        where: { activo: true },
+        orderBy: { updatedAt: 'desc' },
       });
-      return ConfiguracionVisualMapper.toDomain(creado);
-    }
 
-    return ConfiguracionVisualMapper.toDomain(record);
+      if (!record) {
+        const defecto = ConfiguracionVisual.crearDefecto();
+        const creado = await prisma.configuracionVisual.create({
+          data: ConfiguracionVisualMapper.toPersistence(defecto),
+        });
+        return ConfiguracionVisualMapper.toDomain(creado);
+      }
+
+      return ConfiguracionVisualMapper.toDomain(record);
+    } catch (e) {
+      // Fallback resiliente si la base de datos aún no tiene tablas creadas
+      return ConfiguracionVisual.crearDefecto();
+    }
   }
 
   public async guardarConfiguracion(config: ConfiguracionVisual): Promise<ConfiguracionVisual> {
