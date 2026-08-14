@@ -18,7 +18,10 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/v1/auth/login', {
+      const baseUrl = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const loginUrl = baseUrl ? (baseUrl.endsWith('/api/v1') ? `${baseUrl}/auth/login` : `${baseUrl}/api/v1/auth/login`) : '/api/v1/auth/login';
+
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
