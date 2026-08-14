@@ -161,8 +161,8 @@ BEGIN
             'mesAnio', v_mes_str,
             'nombreMes', TO_CHAR(v_mes_iter, 'TMMonth YYYY'),
             'capitalAcumulado', v_total_capital,
-            'interesMoraMes', ROUND(v_total_intereses * (1.0 - (i * 0.08)), 0),
-            'saldoTotalPeriodo', GREATEST(0, (v_total_capital + v_total_intereses) - (i * (v_total_capital * 0.05)))
+            'interesMoraMes', ROUND((v_total_intereses * (1.0 - (i * 0.08)))::NUMERIC, 0),
+            'saldoTotalPeriodo', ROUND(GREATEST(0, (v_total_capital + v_total_intereses) - (i * (v_total_capital * 0.05)))::NUMERIC, 0)
         );
     END LOOP;
 

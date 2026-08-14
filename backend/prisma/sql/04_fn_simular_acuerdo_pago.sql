@@ -59,9 +59,9 @@ BEGIN
 
     IF v_i > 0 THEN
         -- Cuota = Saldo * [ i * (1 + i)^n ] / [ (1 + i)^n - 1 ]
-        v_cuota_fija := ROUND(v_saldo_financiar * (v_i * POWER(1 + v_i, p_numero_cuotas)) / (POWER(1 + v_i, p_numero_cuotas) - 1), 0);
+        v_cuota_fija := ROUND((v_saldo_financiar * (v_i * (POWER(1 + v_i, p_numero_cuotas)::NUMERIC)) / ((POWER(1 + v_i, p_numero_cuotas)::NUMERIC) - 1))::NUMERIC, 0);
     ELSE
-        v_cuota_fija := ROUND(v_saldo_financiar / p_numero_cuotas, 0);
+        v_cuota_fija := ROUND((v_saldo_financiar / p_numero_cuotas)::NUMERIC, 0);
     END IF;
 
     -- 3. Generar cronograma de cuotas 1 a N
