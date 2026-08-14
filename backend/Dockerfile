@@ -20,4 +20,4 @@ ENV HOSTNAME="0.0.0.0"
 
 EXPOSE 3001
 
-CMD ["node", "start.js"]
+CMD ["npm", "run", "start"]
