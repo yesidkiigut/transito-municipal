@@ -14,13 +14,17 @@ import {
   TrendingUp,
   Save,
   ShieldCheck,
-  FileText
+  FileText,
+  Zap,
+  Play,
+  Flame,
+  Clock
 } from 'lucide-react';
 
 export const ConfiguracionNormativaPage: React.FC = () => {
   const { config } = useThemeStore();
 
-  const [activeTab, setActiveTab] = useState<'reglas' | 'parametros' | 'tasas'>('reglas');
+  const [activeTab, setActiveTab] = useState<'reglas' | 'parametros' | 'tasas' | 'masiva'>('reglas');
   const [loading, setLoading] = useState<boolean>(false);
   const [mensajeExito, setMensajeExito] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +33,11 @@ export const ConfiguracionNormativaPage: React.FC = () => {
   const [reglas, setReglas] = useState<any[]>([]);
   const [parametros, setParametros] = useState<any[]>([]);
   const [tasas, setTasas] = useState<any[]>([]);
+
+  // Estado para Liquidación Masiva
+  const [vigenciaMasiva, setVigenciaMasiva] = useState<number>(2026);
+  const [ejecutandoMasiva, setEjecutandoMasiva] = useState<boolean>(false);
+  const [resultadoMasiva, setResultadoMasiva] = useState<any | null>(null);
 
   // Formulario de Nueva Regla de Descuento
   const [nuevaRegla, setNuevaRegla] = useState({
@@ -148,6 +157,29 @@ export const ConfiguracionNormativaPage: React.FC = () => {
     }
   };
 
+  const handleEjecutarMasiva = async () => {
+    setEjecutandoMasiva(true);
+    setError(null);
+    setMensajeExito(null);
+    try {
+      const res = await liquidacionService.ejecutarLiquidacionMasiva(vigenciaMasiva);
+      setResultadoMasiva(res);
+      setMensajeExito(`Liquidación masiva de la vigencia ${vigenciaMasiva} ejecutada exitosamente en ${res.tiempoEjecucionMs} ms.`);
+    } catch (err: any) {
+      setError(err.message || 'Error al ejecutar liquidación masiva.');
+    } finally {
+      setEjecutandoMasiva(false);
+    }
+  };
+
+  const formatCOP = (val: number) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      maximumFractionDigits: 0,
+    }).format(val || 0);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -200,6 +232,18 @@ export const ConfiguracionNormativaPage: React.FC = () => {
           >
             <TrendingUp size={16} />
             <span>Tasas de Interés de Mora (Superfinanciera)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('masiva')}
+            className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition flex items-center gap-2 ${
+              activeTab === 'masiva'
+                ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 shadow-lg font-black'
+                : 'bg-slate-800/80 text-amber-300 hover:bg-slate-700 border border-amber-500/30'
+            }`}
+          >
+            <Zap size={16} />
+            <span>⚡ Liquidación Masiva Anual</span>
           </button>
         </div>
       </div>
@@ -613,6 +657,113 @@ export const ConfiguracionNormativaPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* PESTAÑA 4: LIQUIDACIÓN MASIVA DEL PARQUE AUTOMOTOR */}
+      {/* ======================================================== */}
+      {activeTab === 'masiva' && (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-amber-950/80 via-slate-900 to-orange-950/80 border border-amber-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-2 max-w-2xl">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-black uppercase">
+                  <Zap size={14} className="text-amber-400" /> Motor PL/pgSQL en Lote
+                </div>
+                <h2 className="text-2xl font-black text-white">
+                  Liquidación Masiva de Impuesto Vehicular
+                </h2>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Ejecuta el Procedimiento Almacenado masivo para liquidar en lote todo el parque automotor activo del municipio, calculando avalúos, rangos en UVT, tarifas oficiales y fechas de pronto pago en pocos segundos.
+                </p>
+              </div>
+
+              <div className="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl flex flex-col sm:flex-row items-center gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-400 uppercase block mb-1">Vigencia a Liquidar</label>
+                  <select
+                    value={vigenciaMasiva}
+                    onChange={(e) => setVigenciaMasiva(Number(e.target.value))}
+                    className="bg-slate-900 border border-slate-700 text-white font-bold text-base px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  >
+                    <option value={2026}>Vigencia 2026</option>
+                    <option value={2025}>Vigencia 2025</option>
+                    <option value={2024}>Vigencia 2024</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={handleEjecutarMasiva}
+                  disabled={ejecutandoMasiva}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-sm shadow-xl hover:opacity-90 active:scale-95 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {ejecutandoMasiva ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                      <span>Ejecutando en Base de Datos...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play size={18} fill="currentColor" />
+                      <span>⚡ Disparar Liquidación Masiva</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Dashboard de Resultados de la Liquidación Masiva */}
+            {resultadoMasiva && (
+              <div className="space-y-4 pt-6 border-t border-slate-800/80">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                    <CheckCircle2 size={16} className="text-emerald-400" />
+                    <span>Resultados de la Liquidación en Lote (Vigencia {resultadoMasiva.vigenciaFiscal})</span>
+                  </h3>
+                  <span className="text-xs font-mono text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-500/30">
+                    ⏱️ Procesado en {resultadoMasiva.tiempoEjecucionMs} ms
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl">
+                    <div className="text-xs text-slate-400 font-semibold uppercase">Vehículos Liquidados</div>
+                    <div className="text-2xl font-black text-white mt-1">
+                      {resultadoMasiva.totalVehiculosLiquidados.toLocaleString('es-CO')}
+                    </div>
+                    <div className="text-xs text-emerald-400 mt-1 font-medium">
+                      {resultadoMasiva.totalVehiculosAlDia} al día / {resultadoMasiva.totalVehiculosEnMora} en mora
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-950/80 border border-cyan-500/30 p-4 rounded-2xl">
+                    <div className="text-xs text-cyan-400 font-semibold uppercase">Recaudo Proyectado</div>
+                    <div className="text-2xl font-black text-cyan-400 mt-1">
+                      {formatCOP(resultadoMasiva.totalRecaudoProyectado)}
+                    </div>
+                    <div className="text-xs text-slate-500 mt-1">Ingresos municipales estimados</div>
+                  </div>
+
+                  <div className="bg-slate-950/80 border border-emerald-500/30 p-4 rounded-2xl">
+                    <div className="text-xs text-emerald-400 font-semibold uppercase">Descuentos Pronto Pago</div>
+                    <div className="text-2xl font-black text-emerald-400 mt-1">
+                      {formatCOP(resultadoMasiva.totalDescuentosProntoPago)}
+                    </div>
+                    <div className="text-xs text-emerald-500/80 mt-1">Beneficios aplicables por ley</div>
+                  </div>
+
+                  <div className="bg-slate-950/80 border border-amber-500/30 p-4 rounded-2xl">
+                    <div className="text-xs text-amber-400 font-semibold uppercase">Sanciones & Moras</div>
+                    <div className="text-2xl font-black text-amber-400 mt-1">
+                      {formatCOP(resultadoMasiva.totalInteresesYSanciones)}
+                    </div>
+                    <div className="text-xs text-amber-500/80 mt-1">Recargos por extemporaneidad</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

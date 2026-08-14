@@ -142,4 +142,21 @@ export class PrismaLiquidacionRepository implements ILiquidacionRepository {
 
     return result[0].res;
   }
+
+  public async ejecutarLiquidacionMasiva(vigencia: number, fechaCorte?: Date): Promise<any> {
+    const fechaCorteStr = fechaCorte ? fechaCorte.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+
+    const result = await prisma.$queryRaw<Array<{ res: any }>>`
+      SELECT fn_liquidar_masivo_impuestos(
+        ${vigencia}::INT,
+        ${fechaCorteStr}::DATE
+      ) as res
+    `;
+
+    if (!result || result.length === 0 || !result[0].res) {
+      throw new Error('Error al ejecutar la liquidación masiva de impuestos.');
+    }
+
+    return result[0].res;
+  }
 }

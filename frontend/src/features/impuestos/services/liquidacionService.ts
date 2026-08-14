@@ -315,4 +315,17 @@ export const liquidacionService = {
     }
     return res.json();
   },
+
+  async ejecutarLiquidacionMasiva(vigencia: number = 2026): Promise<any> {
+    const res = await fetch('/api/v1/liquidaciones/masiva', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vigenciaFiscal: vigencia }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Error al ejecutar liquidación masiva' }));
+      throw new Error(err.error || 'Error al ejecutar liquidación masiva');
+    }
+    return res.json();
+  },
 };

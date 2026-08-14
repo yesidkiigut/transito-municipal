@@ -136,4 +136,5 @@ export interface ILiquidacionRepository {
   crearAcuerdoPagoTransaccional(params: CrearAcuerdoParams): Promise<any>;
   obtenerEstadoCuentaMensual(ciudadanoId?: string, placa?: string, mesesHistoria?: number): Promise<EstadoCuentaMensualResult>;
   calcularTramosDescuento(tipoConcepto: string, referenciaId: string, fechaCorte?: Date, realizoCurso?: boolean): Promise<any>;
+  ejecutarLiquidacionMasiva(vigencia: number, fechaCorte?: Date): Promise<any>;
 }
