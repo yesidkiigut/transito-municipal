@@ -75,6 +75,7 @@ enum EstadoComparendo {
   FALLADO
   APELADO
   ARCHIVADO
+  EN_ACUERDO_PAGO
 }
 
 enum EstadoTramite {
@@ -135,6 +136,7 @@ model Ciudadano {
   tramites     Tramite[]
   citas        Cita[]
   preinscripciones Preinscripcion[]
+  acuerdosPago AcuerdoPago[]
 }
 
 model Vehiculo {
@@ -323,6 +325,7 @@ enum EstadoImpuesto {
   PAGADO
   EN_MORA
   ANULADO
+  EN_ACUERDO_PAGO
 }
 
 enum EstadoPreinscripcion {
@@ -552,5 +555,151 @@ model LoteSincronizacionHassql {
   detallesContables     String?
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @updatedAt
+}
+
+// ==========================================
+// MODELOS PARAMÉTRICOS NORMATIVOS
+// ==========================================
+
+model ParametroAnual {
+  id                      String   @id @default(uuid())
+  vigenciaFiscal          Int      @unique
+  uvtValor                Float
+  smmlvValor              Float
+  sancionMinimaMora       Float
+  valorCursoPedagogico    Float    @default(0)
+  porcentajeDescuentoProntoPago Float @default(10.0)
+  fechaLimiteProntoPago   DateTime
+  activo                  Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model TasaInteresMora {
+  id                       String   @id @default(uuid())
+  anio                     Int
+  mes                      Int
+  tasaEfectivaAnual        Float
+  tasaNominalMensual       Float
+  tasaDiaria               Float
+  resolucionSuperfinanciera String?
+  activo                   Boolean  @default(true)
+  createdAt                DateTime @default(now())
+
+  @@unique([anio, mes])
+}
+
+model RangoTarifaImpuesto {
+  id               String   @id @default(uuid())
+  vigenciaFiscal   Int
+  rangoDesdeUVT    Float
+  rangoHastaUVT    Float
+  porcentajeTarifa Float
+  descripcion      String
+  createdAt        DateTime @default(now())
+
+  @@unique([vigenciaFiscal, rangoDesdeUVT])
+}
+
+model ReglaDescuentoLey {
+  id                 String   @id @default(uuid())
+  codigo             String   @unique
+  descripcion        String
+  diasHabilesMin     Int
+  diasHabilesMax     Int
+  porcentajeDescuento Float
+  requiereCurso      Boolean  @default(true)
+  leyReferencia      String   @default("Ley 769 de 2002 / Ley 2161 de 2021")
+  activo             Boolean  @default(true)
+  createdAt          DateTime @default(now())
+}
+
+model TarifaRodamiento {
+  id            String        @id @default(uuid())
+  vigenciaAnio  Int
+  tipoVehiculo  TipoVehiculo
+  claseServicio ClaseServicio
+  valorTasa     Float
+  createdAt     DateTime      @default(now())
+
+  @@unique([vigenciaAnio, tipoVehiculo, claseServicio])
+}
+
+// ==========================================
+// MÓDULO DE ACUERDOS Y FINANCIACIÓN DE PAGO
+// ==========================================
+
+enum EstadoAcuerdo {
+  BORRADOR
+  ACTIVO
+  AL_DIA
+  EN_MORA
+  PAGADO_TOTAL
+  INCUMPLIDO
+  ANULADO
+}
+
+enum EstadoCuota {
+  PENDIENTE
+  PAGADA
+  EN_MORA
+  ANULADA
+}
+
+model AcuerdoPago {
+  id                       String        @id @default(uuid())
+  codigoAcuerdo            String        @unique
+  ciudadanoId              String
+  placaVehiculo            String?
+  montoTotalDeuda          Float
+  montoCuotaInicial        Float
+  saldoFinanciar           Float
+  numeroCuotas             Int
+  tasaInteresFinanciacion  Float         @default(1.5)
+  valorCuotaFija           Float
+  estado                   EstadoAcuerdo @default(ACTIVO)
+  fechaSuscripcion         DateTime      @default(now())
+  fechaPrimerVencimiento   DateTime
+  observaciones            String?
+  funcionarioRadicaId      String?
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+
+  ciudadano                Ciudadano            @relation(fields: [ciudadanoId], references: [id])
+  cuotas                   CuotaAcuerdoPago[]
+  detallesDeuda            DetalleDeudaAcuerdo[]
+}
+
+model CuotaAcuerdoPago {
+  id                  String      @id @default(uuid())
+  acuerdoId           String
+  numeroCuota         Int
+  valorCapital        Float
+  valorInteres        Float
+  valorTotalCuota     Float
+  saldoRestante       Float
+  fechaVencimiento    DateTime
+  fechaPago           DateTime?
+  estado              EstadoCuota @default(PENDIENTE)
+  reciboPagoRef       String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  acuerdo             AcuerdoPago @relation(fields: [acuerdoId], references: [id], onDelete: Cascade)
+
+  @@unique([acuerdoId, numeroCuota])
+}
+
+model DetalleDeudaAcuerdo {
+  id                  String           @id @default(uuid())
+  acuerdoId           String
+  tipoConcepto        TipoConceptoPago
+  referenciaConcepto  String
+  montoCapital        Float
+  montoIntereses      Float
+  montoTotal          Float
+  createdAt           DateTime         @default(now())
+
+  acuerdo             AcuerdoPago      @relation(fields: [acuerdoId], references: [id], onDelete: Cascade)
 }
 

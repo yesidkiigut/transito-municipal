@@ -25,7 +25,9 @@ import {
   Palette,
   QrCode,
   Database,
-  DollarSign
+  DollarSign,
+  Sliders,
+  Layers
 } from 'lucide-react';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -45,6 +47,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     if (rol === 'CIUDADANO') {
       return [
         { label: 'Mi Carpeta Ciudadana', path: '/', icon: UserCheck },
+        { label: 'Estado de Cuenta & Mora', path: '/estado-cuenta', icon: Layers },
+        { label: 'Acuerdos de Pago', path: '/acuerdos-pago', icon: Sliders },
         { label: 'Pagar PSE & Bre-B', path: '/pagos', icon: QrCode },
         { label: 'Impuesto Vehicular', path: '/impuestos', icon: Landmark },
         { label: 'Preinscripción Digital', path: '/preinscripcion', icon: FileInput },
@@ -58,6 +62,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     if (rol === 'FUNCIONARIO') {
       return [
         { label: 'Panel Operativo', path: '/', icon: BarChart3 },
+        { label: 'Estado de Cuenta & Mora', path: '/estado-cuenta', icon: Layers },
+        { label: 'Acuerdos de Financiación', path: '/acuerdos-pago', icon: Sliders },
         { label: 'Recaudo PSE / Bre-B', path: '/pagos', icon: QrCode },
         { label: 'Impuestos & Liquidación', path: '/impuestos', icon: Landmark },
         { label: 'Rodamiento Municipal', path: '/rodamiento', icon: Bus },
@@ -73,6 +79,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     // ADMIN (Acceso total)
     return [
       { label: 'Dashboard General', path: '/', icon: BarChart3 },
+      { label: 'Estado de Cuenta & Mora', path: '/estado-cuenta', icon: Layers },
+      { label: 'Acuerdos de Financiación', path: '/acuerdos-pago', icon: Sliders },
+      { label: 'Configuración Normativa & Tasas', path: '/configuracion-normativa', icon: Settings },
       { label: 'Recaudo PSE & Bre-B', path: '/pagos', icon: QrCode },
       { label: 'Impuestos & PSE', path: '/impuestos', icon: Landmark },
       { label: 'Rodamiento Municipal', path: '/rodamiento', icon: Bus },

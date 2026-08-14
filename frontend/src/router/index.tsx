@@ -18,6 +18,9 @@ import { BrandingPage } from '@/features/branding/BrandingPage';
 import { PortalPagosPage } from '@/features/pagos/PortalPagosPage';
 import { HassqlSyncPage } from '@/features/hassql/HassqlSyncPage';
 import { TesoreriaPage } from '@/features/tesoreria/TesoreriaPage';
+import { EstadoCuentaPage } from '@/features/estado-cuenta/EstadoCuentaPage';
+import { AcuerdosPagoPage } from '@/features/acuerdos/AcuerdosPagoPage';
+import { ConfiguracionNormativaPage } from '@/features/admin/ConfiguracionNormativaPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token } = useAuthStore();
@@ -45,6 +48,22 @@ export const AppRouter: React.FC = () => {
         element={
           <ProtectedRoute>
             <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/estado-cuenta"
+        element={
+          <ProtectedRoute>
+            <EstadoCuentaPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/acuerdos-pago"
+        element={
+          <ProtectedRoute>
+            <AcuerdosPagoPage />
           </ProtectedRoute>
         }
       />
@@ -126,6 +145,16 @@ export const AppRouter: React.FC = () => {
           <ProtectedRoute>
             <AdminOnlyRoute>
               <ReportesPage />
+            </AdminOnlyRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/configuracion-normativa"
+        element={
+          <ProtectedRoute>
+            <AdminOnlyRoute>
+              <ConfiguracionNormativaPage />
             </AdminOnlyRoute>
           </ProtectedRoute>
         }
