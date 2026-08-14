@@ -2,7 +2,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const port = process.env.PORT || '3000';
+const port = process.env.PORT || '3001';
 const host = '0.0.0.0';
 
 console.log(`🚀 [Railway Start] Iniciando backend de Tránsito Municipal en ${host}:${port}...`);
