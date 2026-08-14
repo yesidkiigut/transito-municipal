@@ -11,7 +11,6 @@ export function middleware(request: NextRequest) {
     'Access-Control-Max-Age': '86400',
   };
 
-  // Manejar preflight OPTIONS con 204 No Content
   if (request.method === 'OPTIONS') {
     return new NextResponse(null, {
       status: 204,
@@ -19,7 +18,6 @@ export function middleware(request: NextRequest) {
     });
   }
 
-  // Para las demás peticiones, adjuntar headers CORS
   const response = NextResponse.next();
   Object.entries(corsHeaders).forEach(([key, value]) => {
     response.headers.set(key, value);

@@ -8,7 +8,25 @@ const loginSchema = z.object({
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
 });
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+    },
+  });
+}
+
 export async function POST(request: Request) {
+  const origin = request.headers.get('origin') || '*';
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+  };
+
   try {
     const body = await request.json();
     const parsed = loginSchema.safeParse(body);
@@ -16,7 +34,7 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: 'Datos de entrada no válidos', details: parsed.error.format() },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -28,8 +46,7 @@ export async function POST(request: Request) {
       email: 'admin@transito.gov.co',
       nombre: 'Administrador de Tránsito',
       rol: 'ADMIN',
-      // Hash for 'admin123'
-      passwordHash: '$2a$10$w8gWJ.dEvmG...demoHashForTestingAdmin123',
+      passwordHash: '',
     };
 
     let isValidPassword = false;
@@ -58,7 +75,7 @@ export async function POST(request: Request) {
     if (!isValidPassword) {
       return NextResponse.json(
         { error: 'Credenciales inválidas. Verifica tu correo y contraseña.' },
-        { status: 401 }
+        { status: 401, headers: corsHeaders }
       );
     }
 
@@ -71,15 +88,18 @@ export async function POST(request: Request) {
     const accessToken = await signAccessToken(tokenPayload);
     const refreshToken = await signRefreshToken(tokenPayload);
 
-    const response = NextResponse.json({
-      user: {
-        id: mockUser.id,
-        email: mockUser.email,
-        nombre: mockUser.nombre,
-        rol: mockUser.rol,
+    const response = NextResponse.json(
+      {
+        user: {
+          id: mockUser.id,
+          email: mockUser.email,
+          nombre: mockUser.nombre,
+          rol: mockUser.rol,
+        },
+        accessToken,
       },
-      accessToken,
-    });
+      { headers: corsHeaders }
+    );
 
     response.cookies.set('refreshToken', refreshToken, {
       httpOnly: true,
@@ -93,7 +113,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     return NextResponse.json(
       { error: 'Error interno en el servidor de autenticación', details: error?.message },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
