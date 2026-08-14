@@ -27,7 +27,8 @@ import {
   Database,
   DollarSign,
   Sliders,
-  Layers
+  Layers,
+  ChevronDown
 } from 'lucide-react';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -37,6 +38,25 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [configModalOpen, setConfigModalOpen] = useState(false);
+
+  // Estado de categorías abiertas en el acordeón
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
+    'Panel Principal': true,
+    '💰 Finanzas & Liquidación': true,
+    '🚗 Tránsito & Operaciones': true,
+    '📑 Trámites & Citas': false,
+    '⚙️ Control & Configuración': false,
+    'Mi Carpeta Digital': true,
+    'Vehículos & Licencias': true,
+    'Liquidación & Recaudo': true,
+  });
+
+  const toggleCategory = (cat: string) => {
+    setOpenCategories((prev) => ({
+      ...prev,
+      [cat]: !prev[cat],
+    }));
+  };
 
   const handleLogout = () => {
     logout();
@@ -297,55 +317,79 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           style={{ backgroundColor: config.colorSidebar ? `${config.colorSidebar}e6` : '#0f172a66' }}
           className="hidden md:flex flex-col w-72 border-r border-slate-800/80 p-4 backdrop-blur-md transition-colors duration-300 overflow-y-auto max-h-[calc(100vh-4rem)] custom-scrollbar"
         >
-          <div className="space-y-6">
-            {navGroups.map((group, groupIdx) => (
-              <div key={groupIdx} className="space-y-1.5">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 px-3 py-1 flex items-center justify-between">
-                  <span>{group.categoria}</span>
-                  <span className="text-[10px] font-mono text-slate-600 bg-slate-800/50 px-1.5 py-0.5 rounded">
-                    {group.items.length}
-                  </span>
-                </div>
+          <div className="space-y-4">
+            {navGroups.map((group, groupIdx) => {
+              const isOpen = openCategories[group.categoria] ?? true;
+              const hasActiveChild = group.items.some((item) => location.pathname === item.path);
 
-                <div className="space-y-1">
-                  {group.items.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = location.pathname === item.path;
-                    return (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        style={{
-                          backgroundColor: isActive ? `${config.colorPrimario || '#06b6d4'}20` : undefined,
-                          color: isActive ? config.colorPrimario || '#38bdf8' : undefined,
-                          borderColor: isActive ? `${config.colorPrimario || '#06b6d4'}50` : 'transparent',
-                        }}
-                        className={`flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 ${
-                          isActive
-                            ? 'shadow-lg shadow-cyan-950/50 font-bold border'
-                            : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 border border-transparent'
+              return (
+                <div key={groupIdx} className="space-y-1">
+                  {/* Botón de Categoría Desplegable */}
+                  <button
+                    onClick={() => toggleCategory(group.categoria)}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 ${
+                      hasActiveChild
+                        ? 'text-cyan-400 bg-cyan-950/30 border border-cyan-500/20'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`}
+                  >
+                    <span className="truncate">{group.categoria}</span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className="text-[10px] font-mono text-slate-500 bg-slate-800/70 px-1.5 py-0.5 rounded">
+                        {group.items.length}
+                      </span>
+                      <ChevronDown
+                        size={14}
+                        className={`text-slate-400 transition-transform duration-200 ${
+                          isOpen ? 'rotate-180' : ''
                         }`}
-                      >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <Icon size={17} className={isActive ? 'text-cyan-400 flex-shrink-0' : 'text-slate-500 flex-shrink-0'} />
-                          <span className="truncate">{item.label}</span>
-                        </div>
-                        {isActive && <ChevronRight size={13} className="text-cyan-400 flex-shrink-0" />}
-                      </Link>
-                    );
-                  })}
+                      />
+                    </div>
+                  </button>
+
+                  {/* Contenedor de Items (Desplegable) */}
+                  {isOpen && (
+                    <div className="space-y-1 pl-1 pt-0.5 transition-all duration-200">
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = location.pathname === item.path;
+                        return (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            style={{
+                              backgroundColor: isActive ? `${config.colorPrimario || '#06b6d4'}20` : undefined,
+                              color: isActive ? config.colorPrimario || '#38bdf8' : undefined,
+                              borderColor: isActive ? `${config.colorPrimario || '#06b6d4'}50` : 'transparent',
+                            }}
+                            className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-semibold text-sm transition-all duration-200 ${
+                              isActive
+                                ? 'shadow-lg shadow-cyan-950/50 font-bold border'
+                                : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 border border-transparent'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 truncate">
+                              <Icon size={19} className={isActive ? 'text-cyan-400 flex-shrink-0' : 'text-slate-500 flex-shrink-0'} />
+                              <span className="truncate">{item.label}</span>
+                            </div>
+                            {isActive && <ChevronRight size={14} className="text-cyan-400 flex-shrink-0" />}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="mt-8 pt-4 border-t border-slate-800/80 px-2 pb-4">
-            <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-slate-400 space-y-1 shadow-lg">
-              <div className="font-bold text-slate-200 flex items-center gap-1.5 text-[11px]">
+            <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs text-slate-400 space-y-1 shadow-lg">
+              <div className="font-bold text-slate-200 flex items-center gap-1.5 text-xs">
                 <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                 Normativa Nacional & Leyes
               </div>
-              <p className="text-[10px] text-slate-500">Leyes 488, 769, 2161 • Pasarela PSE / Bre-B</p>
+              <p className="text-[11px] text-slate-500">Leyes 488, 769, 2161 • Pasarela PSE / Bre-B</p>
             </div>
           </div>
         </aside>
