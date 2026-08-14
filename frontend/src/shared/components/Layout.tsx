@@ -43,63 +43,134 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     navigate('/login');
   };
 
-  const getNavItemsByRole = (rol?: string) => {
+  interface NavGroup {
+    categoria: string;
+    items: {
+      label: string;
+      path: string;
+      icon: any;
+    }[];
+  }
+
+  const getNavGroupsByRole = (rol?: string): NavGroup[] => {
     if (rol === 'CIUDADANO') {
       return [
-        { label: 'Mi Carpeta Ciudadana', path: '/', icon: UserCheck },
-        { label: 'Estado de Cuenta & Mora', path: '/estado-cuenta', icon: Layers },
-        { label: 'Acuerdos de Pago', path: '/acuerdos-pago', icon: Sliders },
-        { label: 'Pagar PSE & Bre-B', path: '/pagos', icon: QrCode },
-        { label: 'Impuesto Vehicular', path: '/impuestos', icon: Landmark },
-        { label: 'Preinscripción Digital', path: '/preinscripcion', icon: FileInput },
-        { label: 'Mis Vehículos', path: '/vehiculos', icon: Car },
-        { label: 'Mi Licencia', path: '/licencias', icon: CreditCard },
-        { label: 'Mis Comparendos', path: '/comparendos', icon: ShieldAlert },
-        { label: 'Mis Trámites', path: '/tramites', icon: FileCheck },
-        { label: 'Reservar Citas', path: '/agenda', icon: Calendar },
+        {
+          categoria: 'Mi Carpeta Digital',
+          items: [
+            { label: 'Mi Carpeta Ciudadana', path: '/', icon: UserCheck },
+            { label: 'Estado de Cuenta & Mora', path: '/estado-cuenta', icon: Layers },
+            { label: 'Acuerdos de Financiación', path: '/acuerdos-pago', icon: Sliders },
+            { label: 'Pagar con PSE / Bre-B', path: '/pagos', icon: QrCode },
+          ],
+        },
+        {
+          categoria: 'Vehículos & Licencias',
+          items: [
+            { label: 'Mis Vehículos Registrados', path: '/vehiculos', icon: Car },
+            { label: 'Impuesto Vehicular', path: '/impuestos', icon: Landmark },
+            { label: 'Mi Licencia de Conducción', path: '/licencias', icon: CreditCard },
+            { label: 'Mis Comparendos', path: '/comparendos', icon: ShieldAlert },
+          ],
+        },
+        {
+          categoria: 'Trámites & Citas',
+          items: [
+            { label: 'Mis Trámites Digitales', path: '/tramites', icon: FileCheck },
+            { label: 'Reservar Citas en Sede', path: '/agenda', icon: Calendar },
+            { label: 'Preinscripción Digital', path: '/preinscripcion', icon: FileInput },
+          ],
+        },
       ];
     }
+
     if (rol === 'FUNCIONARIO') {
       return [
-        { label: 'Panel Operativo', path: '/', icon: BarChart3 },
-        { label: 'Estado de Cuenta & Mora', path: '/estado-cuenta', icon: Layers },
-        { label: 'Acuerdos de Financiación', path: '/acuerdos-pago', icon: Sliders },
-        { label: 'Recaudo PSE / Bre-B', path: '/pagos', icon: QrCode },
-        { label: 'Impuestos & Liquidación', path: '/impuestos', icon: Landmark },
-        { label: 'Rodamiento Municipal', path: '/rodamiento', icon: Bus },
-        { label: 'Preinscripciones', path: '/preinscripcion', icon: FileInput },
-        { label: 'Consultar Ciudadanos', path: '/ciudadanos', icon: Users },
-        { label: 'Parque Automotor', path: '/vehiculos', icon: Car },
-        { label: 'Licencias de Conducción', path: '/licencias', icon: CreditCard },
-        { label: 'Imposición Comparendos', path: '/comparendos', icon: ShieldAlert },
-        { label: 'Workflow de Trámites', path: '/tramites', icon: FileCheck },
-        { label: 'Atención de Citas', path: '/agenda', icon: Calendar },
+        {
+          categoria: 'Panel Principal',
+          items: [
+            { label: 'Panel Operativo', path: '/', icon: BarChart3 },
+          ],
+        },
+        {
+          categoria: 'Liquidación & Recaudo',
+          items: [
+            { label: 'Estado de Cuenta & Mora', path: '/estado-cuenta', icon: Layers },
+            { label: 'Acuerdos de Financiación', path: '/acuerdos-pago', icon: Sliders },
+            { label: 'Recaudo PSE & Bre-B', path: '/pagos', icon: QrCode },
+            { label: 'Impuestos & Liquidación', path: '/impuestos', icon: Landmark },
+            { label: 'Rodamiento Municipal', path: '/rodamiento', icon: Bus },
+          ],
+        },
+        {
+          categoria: 'Registro & Operaciones',
+          items: [
+            { label: 'Imposición Comparendos', path: '/comparendos', icon: ShieldAlert },
+            { label: 'Parque Automotor', path: '/vehiculos', icon: Car },
+            { label: 'Consultar Ciudadanos', path: '/ciudadanos', icon: Users },
+            { label: 'Licencias de Conducción', path: '/licencias', icon: CreditCard },
+            { label: 'Preinscripciones', path: '/preinscripcion', icon: FileInput },
+          ],
+        },
+        {
+          categoria: 'Atención & Trámites',
+          items: [
+            { label: 'Workflow de Trámites', path: '/tramites', icon: FileCheck },
+            { label: 'Atención de Citas', path: '/agenda', icon: Calendar },
+          ],
+        },
       ];
     }
-    // ADMIN (Acceso total)
+
+    // ADMIN (Acceso total agrupado)
     return [
-      { label: 'Dashboard General', path: '/', icon: BarChart3 },
-      { label: 'Estado de Cuenta & Mora', path: '/estado-cuenta', icon: Layers },
-      { label: 'Acuerdos de Financiación', path: '/acuerdos-pago', icon: Sliders },
-      { label: 'Configuración Normativa & Tasas', path: '/configuracion-normativa', icon: Settings },
-      { label: 'Recaudo PSE & Bre-B', path: '/pagos', icon: QrCode },
-      { label: 'Impuestos & PSE', path: '/impuestos', icon: Landmark },
-      { label: 'Rodamiento Municipal', path: '/rodamiento', icon: Bus },
-      { label: 'Preinscripción Digital', path: '/preinscripcion', icon: FileInput },
-      { label: 'Gestión Ciudadanos', path: '/ciudadanos', icon: Users },
-      { label: 'Gestión Vehículos', path: '/vehiculos', icon: Car },
-      { label: 'Licencias Conducción', path: '/licencias', icon: CreditCard },
-      { label: 'Comparendos e Infracciones', path: '/comparendos', icon: ShieldAlert },
-      { label: 'Motor de Trámites', path: '/tramites', icon: FileCheck },
-      { label: 'Agenda y Citas', path: '/agenda', icon: Calendar },
-      { label: 'Reportes Globales', path: '/reportes', icon: BarChart3 },
-      { label: 'Tesorería & Auditoría', path: '/tesoreria', icon: DollarSign },
-      { label: 'Conciliación HASSQL', path: '/hassql-sync', icon: Database },
-      { label: 'Identidad Visual & Logos', path: '/branding', icon: Palette },
+      {
+        categoria: 'Panel Principal',
+        items: [
+          { label: 'Dashboard General', path: '/', icon: BarChart3 },
+        ],
+      },
+      {
+        categoria: '💰 Finanzas & Liquidación',
+        items: [
+          { label: 'Estado de Cuenta & Mora', path: '/estado-cuenta', icon: Layers },
+          { label: 'Acuerdos de Financiación', path: '/acuerdos-pago', icon: Sliders },
+          { label: 'Recaudo PSE & Bre-B', path: '/pagos', icon: QrCode },
+          { label: 'Impuesto Vehicular & PSE', path: '/impuestos', icon: Landmark },
+          { label: 'Rodamiento Municipal', path: '/rodamiento', icon: Bus },
+        ],
+      },
+      {
+        categoria: '🚗 Tránsito & Operaciones',
+        items: [
+          { label: 'Comparendos e Infracciones', path: '/comparendos', icon: ShieldAlert },
+          { label: 'Parque Automotor (Vehículos)', path: '/vehiculos', icon: Car },
+          { label: 'Gestión de Ciudadanos', path: '/ciudadanos', icon: Users },
+          { label: 'Licencias de Conducción', path: '/licencias', icon: CreditCard },
+          { label: 'Preinscripción Digital', path: '/preinscripcion', icon: FileInput },
+        ],
+      },
+      {
+        categoria: '📑 Trámites & Citas',
+        items: [
+          { label: 'Motor de Trámites', path: '/tramites', icon: FileCheck },
+          { label: 'Agenda y Citas', path: '/agenda', icon: Calendar },
+        ],
+      },
+      {
+        categoria: '⚙️ Control & Configuración',
+        items: [
+          { label: 'Configuración Normativa & Tasas', path: '/configuracion-normativa', icon: Settings },
+          { label: 'Tesorería & Auditoría', path: '/tesoreria', icon: DollarSign },
+          { label: 'Conciliación HASSQL', path: '/hassql-sync', icon: Database },
+          { label: 'Identidad Visual & Logos', path: '/branding', icon: Palette },
+          { label: 'Reportes Globales', path: '/reportes', icon: BarChart3 },
+        ],
+      },
     ];
   };
 
-  const navItems = getNavItemsByRole(user?.rol);
+  const navGroups = getNavGroupsByRole(user?.rol);
 
   return (
     <div
@@ -224,70 +295,90 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         {/* Sidebar Navigation */}
         <aside
           style={{ backgroundColor: config.colorSidebar ? `${config.colorSidebar}e6` : '#0f172a66' }}
-          className="hidden md:flex flex-col w-64 border-r border-slate-800/80 p-4 gap-1.5 backdrop-blur-md transition-colors duration-300"
+          className="hidden md:flex flex-col w-72 border-r border-slate-800/80 p-4 backdrop-blur-md transition-colors duration-300 overflow-y-auto max-h-[calc(100vh-4rem)] custom-scrollbar"
         >
-          <div className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 px-3 py-1 mb-1">
-            {user?.rol === 'CIUDADANO' ? 'Servicios Ciudadano' : 'Módulos de Control'}
+          <div className="space-y-6">
+            {navGroups.map((group, groupIdx) => (
+              <div key={groupIdx} className="space-y-1.5">
+                <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 px-3 py-1 flex items-center justify-between">
+                  <span>{group.categoria}</span>
+                  <span className="text-[10px] font-mono text-slate-600 bg-slate-800/50 px-1.5 py-0.5 rounded">
+                    {group.items.length}
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        style={{
+                          backgroundColor: isActive ? `${config.colorPrimario || '#06b6d4'}20` : undefined,
+                          color: isActive ? config.colorPrimario || '#38bdf8' : undefined,
+                          borderColor: isActive ? `${config.colorPrimario || '#06b6d4'}50` : 'transparent',
+                        }}
+                        className={`flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 ${
+                          isActive
+                            ? 'shadow-lg shadow-cyan-950/50 font-bold border'
+                            : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 border border-transparent'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 truncate">
+                          <Icon size={17} className={isActive ? 'text-cyan-400 flex-shrink-0' : 'text-slate-500 flex-shrink-0'} />
+                          <span className="truncate">{item.label}</span>
+                        </div>
+                        {isActive && <ChevronRight size={13} className="text-cyan-400 flex-shrink-0" />}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
 
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                style={{
-                  backgroundColor: isActive ? `${config.colorPrimario || '#06b6d4'}20` : undefined,
-                  color: isActive ? config.colorPrimario || '#38bdf8' : undefined,
-                  borderColor: isActive ? `${config.colorPrimario || '#06b6d4'}50` : 'transparent',
-                }}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-semibold text-sm transition-all duration-200 ${
-                  isActive
-                    ? 'shadow-lg shadow-cyan-950/50 font-bold border'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 border border-transparent'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon size={19} className={isActive ? 'text-cyan-400' : 'text-slate-500'} />
-                  <span>{item.label}</span>
-                </div>
-                {isActive && <ChevronRight size={14} className="text-cyan-400" />}
-              </Link>
-            );
-          })}
-
-          <div className="mt-auto pt-6 border-t border-slate-800/80 px-2">
-            <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs text-slate-400 space-y-1 shadow-lg">
-              <div className="font-bold text-slate-200 flex items-center gap-1.5">
+          <div className="mt-8 pt-4 border-t border-slate-800/80 px-2 pb-4">
+            <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-slate-400 space-y-1 shadow-lg">
+              <div className="font-bold text-slate-200 flex items-center gap-1.5 text-[11px]">
                 <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                Normativa Colombiana
+                Normativa Nacional & Leyes
               </div>
-              <p className="text-[11px] text-slate-400">Ley 488 • Ley 769 • Ley 2161 • Pasarela PSE</p>
+              <p className="text-[10px] text-slate-500">Leyes 488, 769, 2161 • Pasarela PSE / Bre-B</p>
             </div>
           </div>
         </aside>
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col p-6 space-y-4">
+          <div className="md:hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col p-6 space-y-4 overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <span className="font-extrabold text-lg text-white">Menú Principal</span>
+              <span className="font-extrabold text-lg text-white">Menú de Módulos</span>
               <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-white">
                 <X size={24} />
               </button>
             </div>
-            <div className="flex flex-col gap-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-slate-200 text-base font-semibold"
-                >
-                  <item.icon size={20} className="text-cyan-400" />
-                  {item.label}
-                </Link>
+            <div className="flex flex-col gap-6">
+              {navGroups.map((group, gIdx) => (
+                <div key={gIdx} className="space-y-2">
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">
+                    {group.categoria}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    {group.items.map((item) => (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-sm font-semibold"
+                      >
+                        <item.icon size={18} className="text-cyan-400" />
+                        <span>{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
