@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
+const { execSync } = require('child_process');
+
 const databaseUrl =
   process.env.DATABASE_URL ||
   'postgresql://transito:transito123@127.0.0.1:5433/transito_municipal?schema=public';
@@ -19,6 +21,18 @@ async function initDatabase() {
   console.log('🚀 [AutoInit] Verificando e inicializando base de datos en Railway...');
 
   try {
+    // 0. Sincronizar esquema de tablas en PostgreSQL
+    try {
+      console.log('📦 [AutoInit] Sincronizando tablas de PostgreSQL (prisma db push)...');
+      execSync('npx prisma db push --skip-generate --accept-data-loss', {
+        stdio: 'inherit',
+        env: process.env,
+      });
+      console.log('✅ [AutoInit] Tablas sincronizadas.');
+    } catch (pushErr) {
+      console.warn('⚠️ [AutoInit] Advertencia al sincronizar tablas:', pushErr.message);
+    }
+
     // 1. Compilar y registrar todos los Procedimientos Almacenados y Funciones PL/pgSQL
     const sqlDir = path.join(__dirname, 'prisma', 'sql');
     if (fs.existsSync(sqlDir)) {
